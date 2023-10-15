@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(uuid())
+  userName        String            @unique
+  name            String
+  email           String            @unique
+  password        String
+  role            String
+  contactNo       String
+  address         String
+  profileImg      String
+  ReviewAndRating ReviewAndRating[]
+  Booking         Booking[]
+
+  @@map("users")
+}
+
+model Category {
+  id      String    @id @default(uuid())
+  title   String
+  Service Service[]
+
+  @@map("categories")
+}
+
+model Service {
+  id              String            @id @default(uuid())
+  title           String
+  description1    String
+  description2    String
+  description3    String
+  description4    String
+  categoryId      String
+  venue           String
+  venueType       String
+  space           Int
+  numberOfGuest   Int
+  price           Float
+  discount        Float
+  category        Category          @relation(fields: [categoryId], references: [id])
+  ReviewAndRating ReviewAndRating[]
+
+  @@map("service")
+}
+
+model ReviewAndRating {
+  id        String  @id @default(uuid())
+  review    String
+  rating    Int
+  userId    String
+  serviceId String
+  user      User    @relation(fields: [userId], references: [id])
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  @@map("reviews")
+}
+
+model Booking {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  bookingDate String
+  booking     BookingService[]
+  status      String           @default("pending")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("booking")
+}
+
+model BookingService {
+  id        String  @id @default(uuid())
+  bookingId String
+  serviceId String
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("bookingService")
+}
